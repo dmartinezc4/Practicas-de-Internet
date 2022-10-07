@@ -1,8 +1,7 @@
 export function multiplicar(arr: Array<any>){
 
     //Primero aplanamos el array para quitar la profundidad
-    let x=Number.MAX_VALUE;
-    const flated=arr.flat(x);    
+    const flated=arr.flat(Number.MAX_VALUE);    
 
     //Luego parseamos el array para tener números
     const parsed=flated.map(str=>{
@@ -25,6 +24,6 @@ export function multiplicar(arr: Array<any>){
 
 }
 
-//Imprimimos por pantalla el resultado
+//Imprimimos por pantalla el resultado con un array de prueba
 const array_prueba=["1",2,3,[["4"],5]];
 console.log(multiplicar(array_prueba));
