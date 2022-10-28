@@ -20,12 +20,14 @@ export const getUser = async (ctx: GetUserContext) => {
     try{
         if(ctx.params?.id){
             const user:UserSchema |undefined = await UserCollection.findOne({_id: new ObjectId(ctx.params.id),});
-        }
+        
+
         if(user){
             ctx.response.status=200;
             ctx.response.body=user;
             return;
         }
+    }
         ctx.response.status=404;
     }catch(e){
         console.error(e)
