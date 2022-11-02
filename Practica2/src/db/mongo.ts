@@ -10,7 +10,6 @@ import { TransactionSchema } from "./schemas.ts";
     const db_name = "banco";
     const mongo_url = `mongodb+srv://${mongo_usr}:${mongo_pwd}@cluster-nebrija.gcxdd.gcp.mongodb.net/${db_name}?authMechanism=SCRAM-SHA-1`;
   
-
 */
 
     const client = new MongoClient();

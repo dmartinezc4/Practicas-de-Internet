@@ -13,30 +13,34 @@ type deleteUserContext = RouterContext<
   Record<string, any>
 >;
 
-//Se usa el email para definir el usuario a borrar
+//Se usará el email para identificar el usuario a borar
 
-export const deleteUser = async (ctx: deleteUserContext) => {
+
+export const deleteUser = async(ctx: deleteUserContext) => {
     try{
-        const email= ctx.params?.id;
-        const user=UserCollection.findOne({email})
+        const mail =ctx.params?.id;
+        const usuario:UserSchema |undefined = await UserCollection.findOne({Email:mail});
 
-        if(!user){
+        if(!usuario){
+            //Si no encotramos al usuario se lo indicamos y 404
             ctx.response.status=404;
-            ctx.response.body={message:"User not found"}
+            ctx.response.body={message: "User not found"};
+            return;
+        }else if(usuario){
+            //Si lo encontramos le mandamos un OK (200), lo borramos de la base de datos y se lo comentamos en el body
+            ctx.response.status=200;            
+            const deleted= await UserCollection.deleteOne({Email:mail});
+            ctx.response.body={message:"User deleted at database succesfully"};
+            return;
+        }else{
+            ctx.response.status=500;
+            ctx.response.body={message: "Unexpected Error deleting"};
             return;
         }
-        if(user){
-            await UserCollection.deleteOne({email});
-            ctx.response.status=200;
-            ctx.response.body=user;        
-            ctx.response.body={message:"The user has been removed"}
-            return;
-        }
-        ctx.response.body = user;
+
     }catch(e){
         console.error(e)
         ctx.response.status=500;
     }
     
 }
-

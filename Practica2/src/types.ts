@@ -5,7 +5,7 @@ export type User ={
     Telefono: number;
     Email: string;
     IBAN: string;
-    id: number;
+    id: string;
 }
 
 export type Transaction ={
