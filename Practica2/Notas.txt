@@ -3,7 +3,7 @@
   
  await client.connect("mongodb+srv://UsuarioPrime:admin_1234@nebrija.mjaye9w.mongodb.net/?authMechanism=SCRAM-SHA-1");
   
- Respecto a los resolvers en general, he intentado siempre poner un estado 500 en caso de que haya un error inesperado que no entre en un try catch
+ Respecto a los resolvers en general, he intentado siempre poner un estado 500 en caso de que haya un error inesperado que no entre en un try catch, aunque tambien tiene un try catch
   
  He puesto algunas consideraciones que he tomado en algunas funciones, como pueda ser en addTransaction, que ha de ser entre dos personas que esten en la misma base de datos
  
