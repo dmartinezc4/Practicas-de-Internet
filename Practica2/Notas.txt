@@ -1,0 +1,16 @@
+ Respecto a la base de datos 
+ Por alguna razón me daba problemas haciendolo por separado asi que para conectar la base de datos lo he hecho así:
+  
+ await client.connect("mongodb+srv://UsuarioPrime:admin_1234@nebrija.mjaye9w.mongodb.net/?authMechanism=SCRAM-SHA-1");
+  
+ Respecto a los resolvers en general, he intentado siempre poner un estado 500 en caso de que haya un error inesperado que no entre en un try catch
+  
+ He puesto algunas consideraciones que he tomado en algunas funciones, como pueda ser en addTransaction, que ha de ser entre dos personas que esten en la misma base de datos
+ 
+ Respecto al addUser no he sido capaz de auto-generar el IBAN y el id. He sido capaz de hacer que el dato 
+ que se introduzca sea del tipo correcto pero no me ha dado tiempo ha conseguir comprobar que los datos sean como los de un email, un dni o el id.
+ 
+ 
+ 
+  
+  
