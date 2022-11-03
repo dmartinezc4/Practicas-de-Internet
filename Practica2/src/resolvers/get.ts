@@ -47,5 +47,6 @@ export const getUser = async (ctx: GetUserContext) => {
     }catch(e){//Try catch para internal server error
         console.error(e);
         ctx.response.status=500;
+        ctx.response.body=e;
     }
 }

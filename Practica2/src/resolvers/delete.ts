@@ -41,6 +41,7 @@ export const deleteUser = async(ctx: deleteUserContext) => {
     }catch(e){
         console.error(e)
         ctx.response.status=500;
+        ctx.response.body=e;
     }
     
 }

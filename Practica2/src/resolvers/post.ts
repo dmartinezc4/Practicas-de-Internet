@@ -87,6 +87,7 @@ export const addUser = async (ctx: addUserContext) => {
     }catch(e){
         console.error(e);
         ctx.response.status=500;
+        ctx.response.body=e;
     }
 }
 
@@ -143,5 +144,6 @@ export const addTransaction = async (ctx: addTransactionContext) => {
     }catch(e){
         console.error(e)
         ctx.response.status=500;
+        ctx.response.body=e;
     }     
 }
