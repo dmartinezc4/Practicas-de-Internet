@@ -28,20 +28,62 @@ export const addUser = async (ctx: addUserContext) => {
     try {
         const result = ctx.request.body({ type: "json" }); 
         const value = await result.value;
+        if(!value.DNI ||!value.Nombre ||!value.Apellidos ||!value.Telefono ||!value.Email ||!value.IBAN || !value.id){
+            //Si no me pasa un parámetro, 400 y le digo que le faltan
+            ctx.response.status = 400;
+            ctx.response.body = { message: "Missing arguments" };
+            return;
+        }
+        if(typeof (value.DNI)!=='string' ||typeof (value.Email)!=='string' ||
+        typeof (value.Nombre)!=='string'||typeof (value.Apellidos)!=='string'||typeof (value.IBAN)!=='string'){
+            ctx.response.status = 400;
+            ctx.response.body = { message: "Incorrect datatype for dni, email, name or surnames. All have to be string" };
+            return;
+        }else if(!isNaN(Number(value.Telefono)) || !isNaN(Number(value.id))){
+            ctx.response.status = 400;
+            ctx.response.body = { message: "Incorrect datatype for phone number. It has to be a number" };
+            return;
+        }
         const user: Partial<User> = {
-                DNI: value.DNI,
-                Nombre: value.Nombre,
-                Apellidos: value.Apellidos,
-                Telefono: value.Telefono,
-                Email: value.Email,
-                IBAN: value.IBAN,
-                id: value.id
-        };  
-            const id = await UserCollection.insertOne(user as UserSchema);
+            //Me creo un un usuario con lo que me pasa
+            DNI: value.DNI,
+            Nombre: value.Nombre,
+            Apellidos: value.Apellidos,
+            Telefono: value.Telefono,
+            Email: value.Email,
+            IBAN: value.IBAN,
+            id:value.id
+            
+        };
+        //Aqui le saco un 400 cuando uno de los campos ya está siendo usado en la base de datos
+        //Le digo especificamente cual le falta
+        if(await UserCollection.findOne({DNI:value.DNI})){
+            ctx.response.body = { message: "DNI already in database" };
+            ctx.response.status = 400;
+            return;
+        }else if(await UserCollection.findOne({Telefono:value.Telefono})){
+            ctx.response.body = { message: "Phone number already in database" };
+            ctx.response.status = 400;
+            return;
+        }else if(await UserCollection.findOne({Email:value.Email})){
+            ctx.response.body = { message: "Email already in database" };
+            ctx.response.status = 400;
+            return;
+        }else if(await UserCollection.findOne({IBAN:value.IBAN})){
+            ctx.response.body = { message: "IBAN already in database" };
+            ctx.response.status = 400;
+            return;
+        }else if(await UserCollection.findOne({id:value.id})){
+            ctx.response.body = { message: "Id already in database" };
+            ctx.response.status = 400;
+            return;
+        }else{//Aqui ya lo que hago es anadir al usuario            
+            const add = await UserCollection.insertOne(user as UserSchema);
             ctx.response.body = { message: "User added succesfully" };
-            user.id= id.toString();
             ctx.response.status = 200;
             return;
+        }
+        
     }catch(e){
         console.error(e);
         ctx.response.status=500;
@@ -75,8 +117,8 @@ export const addTransaction = async (ctx: addTransactionContext) => {
             return;
 
         }
-        const sender:UserSchema |undefined = await UserCollection.findOne({id:(value.id_sender.toString())});
-        const receiver:UserSchema |undefined = await UserCollection.findOne({id:(value.id_receiver.toString())});
+        const sender:UserSchema |undefined = await UserCollection.findOne({id:value.id_sender});
+        const receiver:UserSchema |undefined = await UserCollection.findOne({id:value.id_receiver});
 
         //Considero que para esta práctica los ids tanto del receptor como del emisor han de estar en la UserCollection
         //En caso de que el id de cualquiera de los dos no esté en la base de datos, not found y salimos

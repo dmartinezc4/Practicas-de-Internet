@@ -13,13 +13,17 @@ type GetUserContext = RouterContext<
   Record<string, any>
 >;
 
-//En este caso el parámetro único que sea el DNI y me va a devolver por el body el usuario que me ha pedido
+//Retornaré el usuario si me introduce el DNI, el telefono, el email, el iban o el id
 
 export const getUser = async (ctx: GetUserContext) => {
     try{
         if(ctx.params?.id){
-            const DNIE=ctx.params.id;
-            const user:UserSchema |undefined = await UserCollection.findOne({DNI:DNIE});
+            const value=ctx.params.id;
+            const user:UserSchema |undefined = await UserCollection.findOne({
+                $or:[
+                {DNI:value}, {Telefono:Number(value)}, {Email:value}, {IBAN:value}, {id:Number(value)}
+                ]
+            });
 
             if(user){
                 //Si está le devolvemos el user y un status ok
