@@ -46,10 +46,10 @@ export const getUser = async (ctx: GetUserContext) => {
     }
 }
 
-export const getBooks = async (ctx: GetUserContext) => {
+export const getBooks = async (ctx: GetBooksContext) => {
     try{        
         const params = getQuery(context, { mergeParams: true });
-        
+
     }catch(e){//Try catch para internal server error
         
     }

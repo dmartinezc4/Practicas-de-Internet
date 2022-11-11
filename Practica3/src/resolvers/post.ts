@@ -11,13 +11,13 @@ type addUserContext = RouterContext<
   Record<string, any>
 >;
 
-type addAuthor = RouterContext<
+type addAuthorContext = RouterContext<
   "/addAuthor",
   Record<string | number, string | undefined>,
   Record<string, any>
 >;
 
-type addBook = RouterContext<
+type addBookContext = RouterContext<
   "/addBook",
   Record<string | number, string | undefined>,
   Record<string, any>
@@ -26,7 +26,7 @@ type addBook = RouterContext<
 //Que me pase el user como un json; si le falta algún campo le damos un error,
 //si algún dato ya existe en la base de datos le comentamos que hay duplicidad y no lo añadimos
 
-export const addUser = async (ctx: addUserContext) => {
+export const addUser = async (ctx: addUserContext) => { //Añade user
     try {
         const result = ctx.request.body({ type: "json" }); 
         const value = await result.value;
@@ -43,8 +43,21 @@ export const addUser = async (ctx: addUserContext) => {
 
         const now=new Date();
         const intnow=now.getTime();
+
+        const obid= ObjectId();
+        const find= await usersCollection.findOne({id:value.obid});
+        //Me genero un objectid nuevo para el el usuario
+        //En caso de estar "genero" mas ids hasta que no esté en la base de datos
+
+        while(find){
+            obid= ObjectId();
+            find= await usersCollection.findOne({id:value.obid});
+        }
+
+
         const user: Partial<User> = {
             //Me creo un un usuario con lo que me pasa
+            id: obid;
             name: value.name;
             email: value.email;//único
             pwd: value.pwd;             //La tenemos que cifrar
@@ -73,7 +86,7 @@ export const addUser = async (ctx: addUserContext) => {
 
 //Que me pase el nomber del autor como un json;
 
-export const addAuthor = async (ctx: addTransactionContext) => {
+export const addAuthor = async (ctx: addAuthorContext) => { //Añade autor
 
     try {
         const result = ctx.request.body({ type: "json" }); 
@@ -89,8 +102,18 @@ export const addAuthor = async (ctx: addTransactionContext) => {
             return;
         }
 
+        const obid= ObjectId();
+        const find= await AuthorCollection.findOne({id:value.obid});
+        //Me genero un objectid nuevo para el autor
+        //En caso de estar "genero" mas ids hasta que no esté en la base de datos
+
+        while(find){
+            obid= ObjectId();
+            find= await AuthorCollection.findOne({id:value.obid});
+        }
+
         const author: Partial<Author> = {
-            id: 0; //Me genero yo un id único
+            id: obid; //Esto es un objectid
             name:value.name;
             books: [];
             
@@ -109,7 +132,7 @@ export const addAuthor = async (ctx: addTransactionContext) => {
     }     
 }
 
-export const addBook = async (ctx: addTransactionContext) => {
+export const addBook = async (ctx: addBookContext) => { //Añade libro y si el autor existe, modifica el array de libros del autor
 
     try {
         const result = ctx.request.body({ type: "json" }); 
@@ -130,19 +153,30 @@ export const addBook = async (ctx: addTransactionContext) => {
             return;
         }
 
+        const obid= ObjectId();
+        const find= await booksCollection.findOne({id:value.obid});
+        //Me genero un objectid nuevo para el libro
+        //En caso de estar "genero" mas ids hasta que no esté en la base de datos
+
+        while(find){
+            obid= ObjectId();
+            find= await booksCollection.findOne({id:value.obid});
+        }
+
         const book: Partial<Book> = {
+            id:obid;
             title: value.title; 
             author:value.author;
             pages: value.pages;
             ISBN: 0; //Tengo que hacer esto con uuid
         };
 
-        const add = await booksCollection.insertOne(book as AuthorSchema);
+        const add = await booksCollection.insertOne(book as bookSchema);
 
         const autor= await authorsCollection.findOne({id:value.author.id});
 
         if(autor){//Si existe el mismo autor
-            autor.books.push(book);
+            await authorsCollection.updateOne({id: value.author.id},{$push:{books:book}});
         }
         ctx.response.body = { message: "Book added succesfully" };
         ctx.response.status = 200;

@@ -11,7 +11,7 @@ type updateCartContext = RouterContext<
   Record<string, any>
 >;
 
-export const updateCart = async (ctx: addUserContext) => {
+export const updateCart = async (ctx: updateCartContext) => {//Añade el libro al carrito del usuario si ambos libros existen
     try {
         const result = ctx.request.body({ type: "json" }); 
         const value = await result.value;
@@ -20,8 +20,8 @@ export const updateCart = async (ctx: addUserContext) => {
             ctx.response.body={message:"Missing id_book or id_user"};
             return;
         }
-        const book = await booksCollection.findOne({_id: new ObjectId(value.id_book)});
-        const user = await usersCollection.findOne({_id: new ObjectId(value.id_user)});
+        const book = await booksCollection.findOne({id: value.id_book});
+        const user = await usersCollection.findOne({id: value.id_user});
 
         if(!book || !user){//Si alguno de los dos no existe salimos y 404
             ctx.response.status=404;
@@ -29,7 +29,7 @@ export const updateCart = async (ctx: addUserContext) => {
             return;
 
         }else{// Si existe el libro y el usuario, lo metemos en el carrito
-            await usersCollection.updateOne({_id: new ObjectId(value.id_user)},{$push:{cart:{id_book:value.id_book,quantity:value.quantity}}});
+            await usersCollection.updateOne({id: value.id_user},{$push:{cart:book}});
             ctx.response.status=200;
             ctx.response.body={message:"Book added to cart"};
             return;
