@@ -1,9 +1,9 @@
 import { Application, Router } from "oak";
 
-import { removeSlot } from "./resolvers/delete.ts";
-import { availableSlots } from "./resolvers/get.ts";
-import { addSlot } from "./resolvers/post.ts";
-import { bookSlot } from "./resolvers/put.ts";
+import { deleteUser } from "./resolvers/delete.ts";
+import { getBooks,getUser } from "./resolvers/get.ts";
+import { addUser,addBook,addAuthor } from "./resolvers/post.ts";
+import { updateCart } from "./resolvers/put.ts";
 
 const router = new Router();
 
@@ -13,10 +13,12 @@ router
   .post("/addBook", addBook)
   .delete("/deleteUser/:id", deleteUser)
   .put("/updateCart", updateCart)
-  .get("/getBooks", geetBooks)
-  .get("/getUser/:id", geetBooks);
+  .get("/getBooks", getBooks)
+  .get("/getUser/:id", getUser);
 
 const app = new Application();
+
+console.log("funciona");
 
 app.use(router.routes());
 app.use(router.allowedMethods());
