@@ -1,4 +1,4 @@
-import { Application, Router } from "oak";
+import { Application, Router } from "https://deno.land/x/oak@v11.1.0/mod.ts";
 
 import { deleteUser } from "./resolvers/delete.ts";
 import { getBooks,getUser } from "./resolvers/get.ts";
@@ -11,7 +11,7 @@ router
   .post("/addUser", addUser)
   .post("/addAuthor", addAuthor)
   .post("/addBook", addBook)
-  .delete("/deleteUser/:id", deleteUser)
+  .delete("/deleteUser", deleteUser)
   .put("/updateCart", updateCart)
   .get("/getBooks", getBooks)
   .get("/getUser/:id", getUser);
@@ -23,4 +23,6 @@ console.log("funciona");
 app.use(router.routes());
 app.use(router.allowedMethods());
 
-await app.listen({ port: 8000 });
+const PORT=Number(Deno.env.get("PORT"))
+
+await app.listen({ port: PORT });

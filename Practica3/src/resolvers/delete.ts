@@ -5,29 +5,42 @@ import { usersCollection,booksCollection,authorsCollection } from "../db/mongo.t
 import { UserSchema,BookSchema,AuthorSchema } from "../db/schemas.ts";
 
 type deleteUserContext = RouterContext<
-  "/deleteUser/:id", &
-  {
-    id:string
-  } &
+  "/deleteUser",
   Record<string | number, string | undefined>,
   Record<string, any>
 >;
 
-//Se usará el email para identificar el usuario a borar
+//Que me pase el _id del usuario como un json, error si no me pasa el id bien o error si me pone un id que no existe
 
 
 export const deleteUser = async(ctx: deleteUserContext) => {
     try{
-        if (context.params?.id) {
-            const count = await booksCollection.deleteOne({_id: new ObjectId(context.params.id),});
+        
+        const result = ctx.request.body({ type: "json" }); 
+        const value = await result.value;
+        if(!value._id){
+          ctx.response.status = 400;
+            ctx.response.body = { message: "Missing mongo id. Remember _id and then the id" };
+            return;
         }
+        
+
+        const ide= new ObjectId(value._id);
+
+        
+
+        const count = await usersCollection.deleteOne({"_id": ide});
         if (count) {
-            context.response.status = 200;
+            ctx.response.status = 200;
             ctx.response.body = { message: "User deleted succesfully" };
             return;
-          } else {
-            context.response.status = 404;
+          } else if(!count){
+            ctx.response.status = 404;
             ctx.response.body = { message: "User not found" };
+            return;
+          }else{//Sanity check
+            ctx.response.status = 500;
+            ctx.response.body = { message: "Unexpected error" };
             return;
           }
     }catch(e){        

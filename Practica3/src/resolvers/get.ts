@@ -22,23 +22,27 @@ type GetBooksContext = RouterContext<
   Record<string, any>
 >;
 
-//Retornaré el usuario si me introduce el DNI, el telefono, el email, el iban o el id
+//Retornaré el user si me pasa el id de manera getUser/65452ba5455f , por ejemplo
 
 export const getUser = async (ctx: GetUserContext) => {
     try{        
-        if (context.params?.id) {
-            const user = await booksCollection.findOne({_id: new ObjectId(context.params.id),});
-        }
-
-        if(user){
-            ctx.response.status=200;
-            ctx.response.body=user;
-            return;
-        }else{
-            ctx.response.status=404;
-            ctx.response.body={message:"User not found"};
-            return;
-        }
+        if(ctx.params.id){
+          const user:UserSchema|undefined = await usersCollection.findOne({_id: new ObjectId(ctx.params.id),});
+          
+          if(user){
+              ctx.response.status=200;
+              ctx.response.body=user;
+              return;
+          }else if(!user){
+              ctx.response.status=404;
+              ctx.response.body={message:"User not found"};
+              return;
+          }else{
+            ctx.response.status=500;
+              ctx.response.body={message:"Unexpected error"};
+              return;
+          }
+        }        
     }catch(e){//Try catch para internal server error
         console.error(e);
         ctx.response.status=500;
@@ -46,11 +50,36 @@ export const getUser = async (ctx: GetUserContext) => {
     }
 }
 
+//page y title son las keys, error si no me las pasa con valores 
+
 export const getBooks = async (ctx: GetBooksContext) => {
     try{        
-        const params = getQuery(context, { mergeParams: true });
+        const params = getQuery(ctx, { mergeParams: true });
 
+        if(params?.title){//He considerado que devolverá todos los libros que tienen el nombre
+          const libro= await booksCollection.find({title:params.title})
+          ctx.response.status=200;
+          ctx.response.body=libro;
+          return;
+
+        }else if(params?.page){
+          //Las páginas van de diez en diez elementos
+          //si me mete un numero negativo de página lo contare como si quisiese ver la página 0 
+          const pagina=Number(params?.page);
+          const limite=10;
+          ctx.response.status=200; 
+          const books=await booksCollection.find().skip(pagina>0?(pagina*limite):0).limit(limite);
+          ctx.response.body=books;
+          return;
+
+        }else{
+          ctx.response.status=400;
+          ctx.response.body={message:"Missing arguments or missing arguments' values"};
+          return;
+        }
     }catch(e){//Try catch para internal server error
-        
+      console.error(e);
+      ctx.response.status=500;
+      ctx.response.body=e;
     }
 }

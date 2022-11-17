@@ -11,7 +11,9 @@ type updateCartContext = RouterContext<
   Record<string, any>
 >;
 
-export const updateCart = async (ctx: updateCartContext) => {//Añade el libro al carrito del usuario si ambos libros existen
+//Que me lo pase como un JSON, si alguno de los ids no existen le sacamos un error de no encontrado
+//Si falta algun argumento al hacer la query le indicamos tambien el error
+export const updateCart = async (ctx: updateCartContext) => {
     try {
         const result = ctx.request.body({ type: "json" }); 
         const value = await result.value;
@@ -20,20 +22,29 @@ export const updateCart = async (ctx: updateCartContext) => {//Añade el libro a
             ctx.response.body={message:"Missing id_book or id_user"};
             return;
         }
-        const book = await booksCollection.findOne({id: value.id_book});
-        const user = await usersCollection.findOne({id: value.id_user});
+        const bookid=new ObjectId(value.id_book);
+        const userid=new ObjectId(value.id_user);
 
-        if(!book || !user){//Si alguno de los dos no existe salimos y 404
+        const book = await booksCollection.findOne({id: bookid});
+        const user = await usersCollection.findOne({id: userid});
+
+        
+        if(book && user){// Si existe el libro y el usuario, lo metemos en el carrito
+            await usersCollection.updateOne({id: userid},{$addToSet:{cart:bookid}});
+            ctx.response.status=200;
+            ctx.response.body={message:"Book added to cart"};
+            return;
+        }else if(book===undefined || user===undefined){//Si alguno de los dos no existe salimos y 404
             ctx.response.status=404;
             ctx.response.body={message:"Book or user not found"};
             return;
 
-        }else{// Si existe el libro y el usuario, lo metemos en el carrito
-            await usersCollection.updateOne({id: value.id_user},{$push:{cart:book}});
-            ctx.response.status=200;
-            ctx.response.body={message:"Book added to cart"};
-            return;
         }
+        ctx.response.status=500;
+        ctx.response.body={message:"Unexpected error"};
+        return;
+
+        
     }catch(e){
         console.error(e);
         ctx.response.status=500;

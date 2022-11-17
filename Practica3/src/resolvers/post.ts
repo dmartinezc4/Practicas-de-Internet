@@ -3,6 +3,8 @@ import { getQuery } from "https://deno.land/x/oak@v11.1.0/helpers.ts";
 import { RouterContext } from "https://deno.land/x/oak@v11.1.0/router.ts";
 import { usersCollection,booksCollection,authorsCollection } from "../db/mongo.ts";
 import { UserSchema,BookSchema,AuthorSchema } from "../db/schemas.ts";
+import {User,Author,Book} from "../types.ts"
+import { v4 } from "https://deno.land/std@0.161.0/uuid/mod.ts";
 
 
 type addUserContext = RouterContext<
@@ -23,8 +25,8 @@ type addBookContext = RouterContext<
   Record<string, any>
 >;
 
-//Que me pase el user como un json; si le falta algún campo le damos un error,
-//si algún dato ya existe en la base de datos le comentamos que hay duplicidad y no lo añadimos
+//Que me pase el user como un json; si le falta nombre, contraseña o email le damos un error,
+//si el email ya existe en la base de datos le comentamos que hay duplicidad y no lo añadimos
 
 export const addUser = async (ctx: addUserContext) => { //Añade user
     try {
@@ -35,48 +37,49 @@ export const addUser = async (ctx: addUserContext) => { //Añade user
             ctx.response.body = { message: "Missing arguments" };
             return;
         }
-        if(value.cart || value.created){
+        if(value.cart || value.created||value.id){
             ctx.response.status = 400;
-            ctx.response.body = { message: "Arguments: cart and created are created by database" };
+            ctx.response.body = { message: "Arguments: id, cart and created are created by database" };
+            return;
+        }
+        
+        const already= await usersCollection.findOne({email:value.email})
+
+        if(already){//Entiendo que el email es lo único que no puede repetirse
+            ctx.response.body = { message: "Email already in database" };
+            ctx.response.status = 400;
             return;
         }
 
         const now=new Date();
         const intnow=now.getTime();
+        //Esto permite pasar la fecha a number
 
-        const obid= ObjectId();
-        const find= await usersCollection.findOne({id:value.obid});
-        //Me genero un objectid nuevo para el el usuario
-        //En caso de estar "genero" mas ids hasta que no esté en la base de datos
+        const encoder=new TextEncoder;
 
-        while(find){
-            obid= ObjectId();
-            find= await usersCollection.findOne({id:value.obid});
-        }
+        const cifrada=encoder.encode(value.pwd);    
+        //Esto me permite pasar la contraseña cifrada, la contraseña es un Unit8Array en los tipos tambien
+        //el usuario me puede pasar tanto string como number     
 
+        const carro:ObjectId[]=[];
 
         const user: Partial<User> = {
-            //Me creo un un usuario con lo que me pasa
-            id: obid;
-            name: value.name;
-            email: value.email;//único
-            pwd: value.pwd;             //La tenemos que cifrar
-            created: intnow;
-            cart: Book[];
+            name: value.name,
+            email: value.email,//único
+            pwd: cifrada,           
+            created: intnow,
+            cart: carro,
             
-        };
-
-        if(await UserCollection.findOne({email:value.email})){//Entiendo que es lo único que no puede repetirse
-            ctx.response.body = { message: "Email already in database" };
-            ctx.response.status = 400;
-            return;
-        }else if{
-            const add = await UserCollection.insertOne(user as UserSchema);
+        };           
+        
+            const add = await usersCollection.insertOne(user as UserSchema);
+            const find= await usersCollection.findOne({email:user.email});
+            const addfinal= await usersCollection.updateOne({email:user.email},{$set:{id:find?._id}});
             ctx.response.body = { message: "User added succesfully" };
             ctx.response.status = 200;
             return;
-        }
-
+        
+        
     }catch(e){
         console.error(e);
         ctx.response.status=500;
@@ -100,26 +103,27 @@ export const addAuthor = async (ctx: addAuthorContext) => { //Añade autor
             ctx.response.status = 400;
             ctx.response.body = { message: "Only input name of author" };
             return;
+        }        
+
+        const already= await authorsCollection.findOne({name:value.name});//Busco si no está ya en la base de datos el nombre
+
+        if(already){//Entiendo que el email es lo único que no puede repetirse
+            ctx.response.body = { message: "Author name already in database" };
+            ctx.response.status = 400;
+            return;
         }
 
-        const obid= ObjectId();
-        const find= await AuthorCollection.findOne({id:value.obid});
-        //Me genero un objectid nuevo para el autor
-        //En caso de estar "genero" mas ids hasta que no esté en la base de datos
-
-        while(find){
-            obid= ObjectId();
-            find= await AuthorCollection.findOne({id:value.obid});
-        }
+        const libros:ObjectId[]=[];
 
         const author: Partial<Author> = {
-            id: obid; //Esto es un objectid
-            name:value.name;
-            books: [];
+            name:value.name,
+            books: libros,
             
         };
 
         const add = await authorsCollection.insertOne(author as AuthorSchema);
+        const find= await authorsCollection.findOne({name:author.name});
+        const addfinal= await authorsCollection.updateOne({name:author.name},{$set:{id:find?._id}});
         ctx.response.body = { message: "Author added succesfully" };
         ctx.response.status = 200;
         return;
@@ -132,7 +136,10 @@ export const addAuthor = async (ctx: addAuthorContext) => { //Añade autor
     }     
 }
 
-export const addBook = async (ctx: addBookContext) => { //Añade libro y si el autor existe, modifica el array de libros del autor
+export const addBook = async (ctx: addBookContext) => {
+     //Si el autor existe añado el libro a la base de datos le modifico el id para que sea el de mongo
+     //y luego lo meto en el array del autor
+     //Los atributos del libro me los ha de pasar como un JSON
 
     try {
         const result = ctx.request.body({ type: "json" }); 
@@ -147,37 +154,45 @@ export const addBook = async (ctx: addBookContext) => { //Añade libro y si el a
             ctx.response.body = { message: "Pages must be greater than 0" };
             return;
         }
-        if(value.ISBN){
+        if(value.ISBN || value.ISBN===0){
             ctx.response.status = 400;
             ctx.response.body = { message: "ISBN is created by database" };
             return;
         }
-
-        const obid= ObjectId();
-        const find= await booksCollection.findOne({id:value.obid});
-        //Me genero un objectid nuevo para el libro
-        //En caso de estar "genero" mas ids hasta que no esté en la base de datos
-
-        while(find){
-            obid= ObjectId();
-            find= await booksCollection.findOne({id:value.obid});
+        if(value.id){
+            ctx.response.status = 400;
+            ctx.response.body = { message: "id is created by database" };
+            return;
         }
+
+        let found= await authorsCollection.findOne({name:value.author.name}&&{id:new ObjectId(value.author.id)});
+
+        if(!found){
+            ctx.response.status = 404;
+            ctx.response.body = { message: "Author not in database. Check author name and author id" };
+            return;
+        }
+
+        const myisbn=crypto.randomUUID();
 
         const book: Partial<Book> = {
-            id:obid;
-            title: value.title; 
-            author:value.author;
-            pages: value.pages;
-            ISBN: 0; //Tengo que hacer esto con uuid
-        };
+            title: value.title,
+            author: found,
+            pages: value.pages,
+            ISBN: myisbn, //Tengo que hacer esto con uuid
+        };     
 
-        const add = await booksCollection.insertOne(book as bookSchema);
+        const add = await booksCollection.insertOne(book as BookSchema);//Meto el libro
 
-        const autor= await authorsCollection.findOne({id:value.author.id});
+        const thebook= await booksCollection.findOne({title:book.title});//Busco el libro
 
-        if(autor){//Si existe el mismo autor
-            await authorsCollection.updateOne({id: value.author.id},{$push:{books:book}});
-        }
+        const addfinal= await booksCollection.updateOne({title:book.title},{$set:{id:thebook?._id}});
+
+        const thebook2= await booksCollection.findOne({title:book.title});//Meto el libro en el array del autor
+
+
+        await authorsCollection.updateOne({id: found.id},{$addToSet:{books:thebook2?.id}});
+
         ctx.response.body = { message: "Book added succesfully" };
         ctx.response.status = 200;
         return;
