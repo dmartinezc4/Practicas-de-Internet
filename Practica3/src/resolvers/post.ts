@@ -164,6 +164,7 @@ export const addBook = async (ctx: addBookContext) => {
             ctx.response.body = { message: "id is created by database" };
             return;
         }
+       //a la hora de pasar el autor que me pase en autor su id y su nombre
 
         let found= await authorsCollection.findOne({name:value.author.name}&&{id:new ObjectId(value.author.id)});
 
