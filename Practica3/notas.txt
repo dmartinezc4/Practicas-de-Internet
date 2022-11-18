@@ -1,0 +1,12 @@
+Los comentarios de cada función aclaran un poco la forma de pasar las argumentos a las funciones 
+
+El .env no me lo cogía en mongo.ts si lo dejaba fuera del src asi que lo he tenido que meter ahi; 
+he intentado otros programas no relacionados con la práctica y me seguía sin funcionar pese a que otra gente si.
+A mi me funciona perfectamente si lo dejo donde está y por eso mongo.ts importa el .env; porque sino no sabe como coger las variables
+
+En el put.ts; el endpoint de meter algo en el carro funciona en todos los casos a menos que le metas un string corto con solo letras como "a"
+Esto no implica que deje de funcionar, ya que con el catch sale el error y sigue ejecutandose
+creo que el error es porque espera algo que se parezca mucho a un ObjectId asi que al no parecerse tanto el programa explota.
+
+
+Por lo demás creo que el resto de endoints funciona y en algunos casos me he tomado algunas consideraciones como en el caso de los autores, que no haya nombres repetidos exactamente iguales
