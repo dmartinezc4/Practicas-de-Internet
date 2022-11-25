@@ -12,9 +12,20 @@ const connectMongoDB = async (): Promise<Database> => {
     //console.log(mongo_pwd);
     const db_name = Deno.env.get("DB_NAME");
     //console.log(db_name);
-    const mongo_uri = Deno.env.get("MONGO_URL");
+    const mongo_uri = Deno.env.get("MONGO_URI");
     //console.log(mongo_uri); 
-    const mongo_url = `mongodb+srv://${mongo_usr}:${mongo_pwd}@${mongo_uri}/?authMechanism=SCRAM-SHA-1`;
+
+    const mongo_url= Deno.env.get("MONGO_URL")
+    console.log(mongo_url);
+
+/*
+
+    if (!mongo_usr || !mongo_pwd || !db_name || !mongo_url) {
+        throw new Error(
+          "Missing environment variables, check env.sample for creating .env file"
+        );
+    }
+  */  
 
     const client = new MongoClient();
     await client.connect(mongo_url);

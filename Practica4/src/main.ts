@@ -6,6 +6,7 @@ import { Query } from "./resolvers/query.ts";
 import { Mutation } from "./resolvers/mutation.ts";
 import { typeDefs } from "./schema.ts";
 
+const puerto= Deno.env.get("PORT");
 
 const resolvers = {
     Query,
@@ -23,8 +24,10 @@ const resolvers = {
           })(req)
         : new Response("Not Found", { status: 404 });
     },
-    port: 3000,
+    port: puerto,
   });
+
+console.log(`Server running on port ${puerto}`);
   
   s.listenAndServe();
   

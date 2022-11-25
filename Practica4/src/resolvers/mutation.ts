@@ -45,7 +45,7 @@ export const Mutation={
             return{
                 dni:args.dni,
                 name:args.name,
-                age:args.age
+                age:args.age,
                 cars:coches
             };
         }catch(error){
@@ -81,6 +81,7 @@ export const Mutation={
             throw new Error(error);
         }
     },
+    //Añadir vendedor a concesionario
     addSellerToCarDealer:async(_:unknown, args:{dni:string,cif:string}):Promise<CarDealer>=>{
         try{
             const carDealer = await carDealersCollection.findOne({cif:args.cif});
@@ -107,6 +108,7 @@ export const Mutation={
             throw new Error(error);
         }
     },
+    //Añadir coche a vendedor
     addCarToSeller:async(_:unknown, args:{plate:string,dni:string}):Promise<Seller>=>{
         try{
             const car = await carsCollection.findOne({plate:args.plate});
