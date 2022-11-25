@@ -36,6 +36,6 @@ export const typeDefs = gql`
         createSeller(dni: String!, name: String!, age: Int!): Seller!
         createCarDealer(cif: String!, name: String!, postcode: String!): CarDealer!
         addCarToSeller(dni: String!, plate: String!): Seller!
-        addCarToCarDealer(cif: String!, plate: String!): CarDealer!
+        addSellerToCarDealer(cif: String!, dni: String!): CarDealer!
     }
 `;

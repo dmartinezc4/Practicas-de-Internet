@@ -9,19 +9,20 @@ export const Mutation={
             if(exists){
                 throw new Error("Car already exists");
             }
+            console.log("Coche no en base de datos")
             const car = await carsCollection.insertOne({
-            plate:args.plate,
-            brand:args.brand,
-            seats:args.seats,
-            doors:args.doors,
-            price:args.price
+                plate:args.plate,
+                brand:args.brand,
+                seats:args.seats,
+                doors:args.doors,
+                price:args.price
             });
             return{
-                plate:car.plate,
-                brand:car.brand,
-                seats:car.seats,
-                doors:car.doors,
-                price:car.price
+                plate:args.plate,
+                brand:args.brand,
+                seats:args.seats,
+                doors:args.doors,
+                price:args.price
             };
         }catch(error){
             console.log(error);
