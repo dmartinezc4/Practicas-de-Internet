@@ -21,8 +21,6 @@ export const typeDefs = gql`
         cars: [Car]
         sellers: [Seller]
     }
-
-
     type Query {
         getCars: [Car!]!
         getCar(id: ID!): Car

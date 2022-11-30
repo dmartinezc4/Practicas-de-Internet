@@ -1,10 +1,10 @@
-type Seller={
+export type Seller={
     dni:string,//único
     name:string,
     age:number,
     cars:Car[]
 }
-type Car={
+export type Car={
     plate:string,//único
     brand:string,
     seats:number,
@@ -13,7 +13,7 @@ type Car={
 
 }
 
-type CarDealer={
+export type CarDealer={
     cif:string,//único este es el "dni" de las empresas
     name:string,
     postcode:string,

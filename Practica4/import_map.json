@@ -6,4 +6,4 @@
       "gql": "https://deno.land/x/gql@1.1.2/mod.ts",
       "graphql_tools": "https://deno.land/x/graphql_tools@0.0.2/mod.ts"
     }
-  }
+}

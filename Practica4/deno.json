@@ -24,4 +24,4 @@
       "inspect": "deno run -A --inspect=0.0.0.0:9229 src/main.ts"
     },
     "importMap": "./import_map.json"
-  }
+}

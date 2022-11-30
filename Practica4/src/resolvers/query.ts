@@ -1,10 +1,11 @@
 import { carsCollection,sellersCollection,carDealersCollection } from "../db/database.ts";
 import { ObjectId } from "mongo";
 import { Car,Seller,CarDealer } from "../types.ts";
+import { CarSchema, CarDealerSchema, SellerSchema } from "../db/schemas.ts";
 
 
 export const Query={
-    getCars:async(_:unknown, args:{plate?:string,min?:number,max?:number}):Promise<Car[]|null>=>{
+    getCars:async(_:unknown, args:{plate?:string,min?:number,max?:number})=>{
         try{
             if(args.plate){//Hay matricula
                 if(args.min && !args.max){//Opciones de rango de precio
@@ -44,7 +45,7 @@ export const Query={
             throw new Error(error);
         }
     },
-    getCar:async(_:unknown, args:{id?:string,min?:number,max?:number}):Promise<Car | null>=>{
+    getCar:async(_:unknown, args:{plate?:string,min?:number,max?:number})=>{
         try{
             if(args.plate){//Hay matricula
                 if(args.min && !args.max){//Opciones de rango de precio
@@ -83,7 +84,7 @@ export const Query={
             throw new Error(error);
         }
     },
-    getCarDealers:async(_:unknown, args:{cif?:string,postcode?:string}):Promise<CarDealer[] | null>=>{
+    getCarDealers:async(_:unknown, args:{cif?:string,postcode?:string})=>{
         try{
             if(args.cif){//Hay cif
                 if(args.postcode){//Tiene codigo postal
@@ -110,7 +111,7 @@ export const Query={
         
         }
     },
-    getCarDealer:async(_:unknown, args:{cif?:string,postcode?:string}):Promise<CarDealer | null>=>{
+    getCarDealer:async(_:unknown, args:{cif?:string,postcode?:string})=>{
         try{
             if(args.cif){//Hay cif
                 if(args.postcode){//Tiene codigo postal
@@ -136,7 +137,7 @@ export const Query={
         
         }
     },
-    getSellers:async(_:unknown, args:{dni?:string,name?:string}):Promise<Seller[] | null>=>{
+    getSellers:async(_:unknown, args:{dni?:string,name?:string})=>{
         try{
             if(args.dni){//Hay dni
                 if(args.name){
@@ -163,7 +164,7 @@ export const Query={
             throw new Error(error);
         }
     },
-    getSeller:async(_:unknown, args:{dni?:string,name?:string}):Promise<Seller | null>=>{
+    getSeller:async(_:unknown, args:{dni?:string,name?:string})=>{
         try{
             if(args.dni){//Hay dni
                 if(args.name){

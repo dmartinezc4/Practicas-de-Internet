@@ -19,7 +19,6 @@ const connectMongoDB = async (): Promise<Database> => {
     console.log(mongo_url);
 
 /*
-
     if (!mongo_usr || !mongo_pwd || !db_name || !mongo_url) {
         throw new Error(
           "Missing environment variables, check env.sample for creating .env file"
@@ -38,4 +37,4 @@ console.info(`MongoDB ${db.name} connected`);
 
 export const sellersCollection = db.collection<SellerSchema>("Sellers");
 export const carsCollection = db.collection<CarSchema>("Cars");
-export const carDealersCollection = db.collection<AuthorSchema>("CarDealers");
+export const carDealersCollection = db.collection<CarDealerSchema>("CarDealers");
