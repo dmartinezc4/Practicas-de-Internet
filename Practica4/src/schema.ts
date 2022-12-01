@@ -23,11 +23,15 @@ export const typeDefs = gql`
     }
     type Query {
         getCars: [Car!]!
-        getCar(id: ID!): Car
+        getCarsBudget(min:Int!,max:Int!):[Car]
+        getCar(plate: String!): Car
+        getCarBudget(min:Int!,max:Int!):Car!
         getSellers: [Seller!]!
-        getSeller(id: ID!): Seller
+        getSeller(dni:String!):Seller
+        getSellersName(name:String!):[Seller!]!
+        getSellerName(name:String!):Seller
         getCarDealers: [CarDealer!]!
-        getCarDealer(id: ID!): CarDealer
+        getCarDealer(cif: String!): CarDealer
     }
     type Mutation {
         createCar(plate: String!, brand: String!, seats: Int!, doors: Int!, price: Int!): Car!
