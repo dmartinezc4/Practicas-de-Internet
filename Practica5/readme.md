@@ -1,5 +1,5 @@
-  Para esta quinta práctica se pide desarrollar una API en GraphQL para enviar mensajes entre usuarios
-
+Práctica - 5
+Para esta quinta práctica se pide desarrollar una API en GraphQL para enviar mensajes entre usuarios
 Se deberá crear un .env con los siguientes campos
 URL_MONGO = con la url al servidor de mongo
 PORT = con el puerto para que corra el servidor
@@ -8,9 +8,7 @@ La base de datos deberá ser OBLIGATORIAMENTE con MongoDB y tendrá las siguient
 Usuario
 Mensaje
 Tanto la Autentificacion mediante JWT como el idioma se deberá mandar mediante las cabeceras de la petición (explicación en la clase practica)
-
  Las funciones que se piden son las siguientes y NO SE ADMITE variaciones en los campos de entrada y de salida
-
 createUser(username, password): Usuario
 El campo username deberá ser único
 El campo password deberá estar cifrado
