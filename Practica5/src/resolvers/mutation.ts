@@ -48,6 +48,32 @@ export const Mutation = {
         }catch(e){
             throw new Error(e);
         }
+    },
+    login:async(_:unknown,args:{username:string,password:string},ctx:{token:string}):Promise<string> =>{
+        try{
+            const user= await usersCollection.findOne({username:args.username});
+            if(!user){
+                throw new Error("Username not found")
+            }
+            const valid_pass= await bcrypt.compare(args.password,user.password);
+            if(!valid_pass){
+                throw new Error("Invalid password");
+            }
+            const token = await createJWT(
+                {
+                    username: user.username,
+                    email:user.email,
+                    id:user.id,
+                    created:user.created,
+                    language:user.language,
+                    password:user.password
+
+                },
+                Deno.env.get("JWT_SECRET")!
+            );
+            return token;
+        }catch(e){
+            throw new Error(e);
+        }
     }
-    
 };
